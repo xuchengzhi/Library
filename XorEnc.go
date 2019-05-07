@@ -1,7 +1,5 @@
 package main
 
-import "fmt"
-
 func XorEncodeStr(msg, key string) string {
 	ml := len(msg)
 	kl := len(key)
