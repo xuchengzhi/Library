@@ -1,4 +1,4 @@
-package main
+package XorEnc
 
 func XorEncodeStr(msg, key string) string {
 	ml := len(msg)
