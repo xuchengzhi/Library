@@ -16,3 +16,15 @@ func main() {
     fmt.Println(msg)
     fmt.Println(XorEnc.XorDecodeStr(msg, "abc123testdfdf"))
 }
+
+2.WebSocket 测试
+
+server 启动WebSocket服务，参数 port 
+
+package main
+
+import "github.com/xuchengzhi/Library/WebSocket"
+
+func main() {
+    server.Act("8998")
+}
