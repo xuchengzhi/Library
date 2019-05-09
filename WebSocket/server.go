@@ -51,7 +51,7 @@ func svrConnHandler(conn *websocket.Conn) {
 	}
 }
 
-func act(port string) string {
+func Act(port string) string {
 	http.Handle("/echo", websocket.Handler(svrConnHandler))
 	err := http.ListenAndServe(port, nil)
 	checkErr(err, "ListenAndServe")
