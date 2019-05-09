@@ -53,7 +53,7 @@ func svrConnHandler(conn *websocket.Conn) {
 
 func Act(port string) string {
 	http.Handle("/echo", websocket.Handler(svrConnHandler))
-	err := http.ListenAndServe(port, nil)
+	err := http.ListenAndServe(":"+port, nil)
 	checkErr(err, "ListenAndServe")
 	fmt.Println("Func finish.")
 	return "ok"
