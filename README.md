@@ -9,7 +9,7 @@
 package main
 
 import "fmt"
-import "github.com/xuchengzhi/Library"
+import "github.com/xuchengzhi/Library/Encryption"
 
 func main() {
     msg := XorEnc.XorEncodeStr("123456", "abc123testdfdf")

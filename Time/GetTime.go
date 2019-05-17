@@ -1,4 +1,4 @@
-package GetTime
+package GetFuncTime
 
 // package main
 
