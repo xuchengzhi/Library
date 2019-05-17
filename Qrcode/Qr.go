@@ -25,7 +25,7 @@ func writePng(filename string, img image.Image) {
 	log.Println(file.Name())
 }
 
-func builds(str, name string, x, y int) {
+func Builds(str, name string, x, y int) {
 	base64 := str
 	log.Println("Original data:", base64)
 	code, err := qr.Encode(base64, qr.L, qr.Auto)
@@ -47,7 +47,7 @@ func builds(str, name string, x, y int) {
 	writePng(name+".png", code)
 }
 
-func scants(file string) {
+func Scants(file string) {
 	fi, err := os.Open(file)
 	if err != nil {
 		fmt.Println(err.Error())
