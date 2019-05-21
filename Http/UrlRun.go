@@ -63,7 +63,7 @@ func Post(p *Par, ch chan ApiJson) {
 
 }
 
-func Action(url string, p map[string]string) json {
+func Action(url string, p map[string]string) UnmarshalJSON {
 	pars := &Par{url, p}
 	outputs := make(chan ApiJson)
 	var status ApiJson
