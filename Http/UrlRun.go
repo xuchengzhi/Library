@@ -63,7 +63,7 @@ func Post(p *Par, ch chan ApiJson) {
 
 }
 
-func Action(url string, p map[string]string) UnmarshalJSON {
+func Action(url string, p map[string]string) string {
 	pars := &Par{url, p}
 	outputs := make(chan ApiJson)
 	var status ApiJson
@@ -71,7 +71,7 @@ func Action(url string, p map[string]string) UnmarshalJSON {
 	status = <-outputs
 	vvvv, _ := json.Marshal(status)
 	fmt.Println(string(vvvv))
-	return vvvv
+	return string(vvvv)
 
 }
 
