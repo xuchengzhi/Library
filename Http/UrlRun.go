@@ -49,7 +49,7 @@ func Post(p *Par, ch chan ApiJson) {
 	resp, err := client.Do(req)
 	// resp, err := transport.RoundTrip(req)
 	if err != nil {
-		ch <- ApiJson{1, "time out", "error"}
+		ch <- ApiJson{2, "time out", "error"}
 	}
 	if resp != nil {
 		defer resp.Body.Close()
@@ -63,7 +63,7 @@ func Post(p *Par, ch chan ApiJson) {
 
 }
 
-func Action(url string, p map[string]string) string {
+func Action(url string, p map[string]string) json {
 	pars := &Par{url, p}
 	outputs := make(chan ApiJson)
 	var status ApiJson
@@ -71,7 +71,7 @@ func Action(url string, p map[string]string) string {
 	status = <-outputs
 	vvvv, _ := json.Marshal(status)
 	fmt.Println(string(vvvv))
-	return string(vvvv)
+	return vvvv
 
 }
 
