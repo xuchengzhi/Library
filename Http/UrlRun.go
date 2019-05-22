@@ -3,9 +3,12 @@ package UrlRun
 import (
 	"fmt"
 	// "github.com/xuchengzhi/Library/Time"
+	// "context"
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"net/url"
+	// "reflect"
 	"strings"
 	"time"
 )
@@ -49,14 +52,18 @@ func Post(p *Par, ch chan ApiJson) {
 	resp, err := client.Do(req)
 	// resp, err := transport.RoundTrip(req)
 	if err != nil {
-		ch <- ApiJson{2, "time out", "error"}
-	}
-	if resp != nil {
+		ch <- ApiJson{2, "request canceled or time out", "error"}
+	} else {
+
 		defer resp.Body.Close()
+		body, errs := ioutil.ReadAll(resp.Body)
+		if errs != nil {
+			fmt.Println(errs)
+		}
 		if resp.StatusCode != 200 {
-			ch <- ApiJson{1, "api error", "error"}
+			ch <- ApiJson{1, "api error", string(body)}
 		} else {
-			ch <- ApiJson{0, "success", "ok"}
+			ch <- ApiJson{0, string(body), "success"}
 		}
 
 	}
@@ -88,22 +95,25 @@ func Get(p *Par, ch chan ApiJson) {
 	resp, err := client.Do(req)
 	// resp, err := transport.RoundTrip(req)
 	if err != nil {
-		ch <- ApiJson{2, "time out", "error"}
-	}
-	if resp != nil {
+		ch <- ApiJson{2, "request canceled or time out", "error"}
+	} else {
 		defer resp.Body.Close()
+		body, errs := ioutil.ReadAll(resp.Body)
+		if errs != nil {
+			fmt.Println(errs)
+		}
 		if resp.StatusCode != 200 {
-			ch <- ApiJson{1, "api error", "error"}
+			ch <- ApiJson{1, "api error", string(body)}
 		} else {
-			ch <- ApiJson{0, "success", "ok"}
+			ch <- ApiJson{0, string(body), "success"}
 		}
 
 	}
 }
 
-func Action(url string, p map[string]string, method string) string {
+func Action(urls string, p map[string]string, method string) string {
 
-	pars := &Par{url, p}
+	pars := &Par{urls, p}
 	outputs := make(chan ApiJson)
 	var status ApiJson
 	if strings.EqualFold(method, "post") {
@@ -123,6 +133,16 @@ func Action(url string, p map[string]string, method string) string {
 // 	params := make(map[string]string)
 // 	params["name"] = "test"
 // 	params["age"] = "ten"
-// 	pars := &Par{"http://192.168.248.188:8082/v1/StsToken", params}
-// 	Response(pars)
+// 	tmp := UrlRun.Action("http://192.168.248.188:8082/v1/StsToken", params, "get")
+// 	var res ResJson
+// 	fmt.Println(reflect.TypeOf(tmp))
+// 	if err := json.Unmarshal([]byte(tmp), &res); err == nil {
+// 		if res.Code == 0 {
+// 			fmt.Println("yes")
+// 		} else {
+// 			fmt.Println("no")
+// 		}
+// 	} else {
+// 		fmt.Println(err)
+// 	}
 // }
