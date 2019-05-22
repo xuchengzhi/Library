@@ -27,9 +27,13 @@ type ApiJson struct {
 
 var timeout time.Duration
 
+var is_res, is_proxy bool
+
 func init() {
 
 	timeout = time.Duration(500 * time.Millisecond)
+	is_res = true
+	is_proxy = false
 }
 
 func Post(p *Par, ch chan ApiJson) {
@@ -134,6 +138,47 @@ func Action(urls string, p map[string]string, method string) string {
 	// fmt.Println(string(vvvv))
 	return string(vvvv)
 
+}
+
+type ResJson struct {
+	Code int    `json:"code"`
+	Msg  string `json:"msg"`
+	Info string `json:"info"`
+}
+
+func PressureRun(num int, url, method string, params map[string]string) {
+	errors := 0
+	var res string
+	for i := 0; i < num; i++ {
+
+		go func() {
+			tmp := Action(url, params, method)
+			var res ResJson
+			// fmt.Println(reflect.TypeOf(tmp))
+			if err := json.Unmarshal([]byte(tmp), &res); err == nil {
+				if res.Code == 0 {
+
+				} else {
+					errors += 1
+				}
+			} else {
+				errors += 1
+			}
+		}()
+
+		time.Sleep(1)
+	}
+	if errors != 0 {
+		error_rate := float64(errors) / float64(num) * 100
+		res = fmt.Sprintf("错误数：%v，错误率：%.2f%%", errors, error_rate)
+
+	} else {
+		res = fmt.Sprintf("已全部执行完成")
+
+	}
+	if is_res {
+		fmt.Println(res)
+	}
 }
 
 // func main() {
