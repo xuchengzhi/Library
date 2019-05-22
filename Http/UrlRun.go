@@ -60,14 +60,58 @@ func Post(p *Par, ch chan ApiJson) {
 		}
 
 	}
-
 }
 
-func Action(url string, p map[string]string) string {
+func Get(p *Par, ch chan ApiJson) {
+
+	urls := p.url
+	// fmt.Println(urls)
+	par := p.params
+	req, _ := http.NewRequest("GET", urls, nil)
+	req.Header.Set("User-Agent", "goTest")
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	q := req.URL.Query()
+	for key, val := range par {
+		q.Add(key, string(val))
+	}
+	req.URL.RawQuery = q.Encode()
+	proxy := func(_ *http.Request) (*url.URL, error) {
+		return url.Parse("http://127.0.0.1:8888")
+	}
+	transport := &http.Transport{Proxy: proxy}
+	timeout := time.Duration(200 * time.Millisecond)
+	client := &http.Client{
+		Timeout:   timeout,
+		Transport: transport,
+	}
+
+	resp, err := client.Do(req)
+	// resp, err := transport.RoundTrip(req)
+	if err != nil {
+		ch <- ApiJson{2, "time out", "error"}
+	}
+	if resp != nil {
+		defer resp.Body.Close()
+		if resp.StatusCode != 200 {
+			ch <- ApiJson{1, "api error", "error"}
+		} else {
+			ch <- ApiJson{0, "success", "ok"}
+		}
+
+	}
+}
+
+func Action(url string, p map[string]string, method string) string {
+
 	pars := &Par{url, p}
 	outputs := make(chan ApiJson)
 	var status ApiJson
-	go Post(pars, outputs)
+	if strings.EqualFold(method, "post") {
+		go Post(pars, outputs)
+	} else {
+		go Get(pars, outputs)
+	}
+
 	status = <-outputs
 	vvvv, _ := json.Marshal(status)
 	fmt.Println(string(vvvv))
