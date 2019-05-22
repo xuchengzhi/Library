@@ -25,6 +25,13 @@ type ApiJson struct {
 	Data   interface{} `json:"info"`
 }
 
+var timeout time.Duration
+
+func init() {
+
+	timeout = time.Duration(500 * time.Millisecond)
+}
+
 func Post(p *Par, ch chan ApiJson) {
 
 	urls := p.url
@@ -39,11 +46,11 @@ func Post(p *Par, ch chan ApiJson) {
 	req, _ := http.NewRequest("POST", urls, strings.NewReader(data))
 	req.Header.Set("User-Agent", "goTest")
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	proxy := func(_ *http.Request) (*url.URL, error) {
-		return url.Parse("http://127.0.0.1:8888")
-	}
-	transport := &http.Transport{Proxy: proxy}
-	timeout := time.Duration(200 * time.Millisecond)
+	// proxy := func(_ *http.Request) (*url.URL, error) {
+	// 	return url.Parse("http://127.0.0.1:8888")
+	// }
+	transport := &http.Transport{}
+
 	client := &http.Client{
 		Timeout:   timeout,
 		Transport: transport,
@@ -82,11 +89,11 @@ func Get(p *Par, ch chan ApiJson) {
 		q.Add(key, string(val))
 	}
 	req.URL.RawQuery = q.Encode()
-	proxy := func(_ *http.Request) (*url.URL, error) {
-		return url.Parse("http://127.0.0.1:8888")
-	}
-	transport := &http.Transport{Proxy: proxy}
-	timeout := time.Duration(200 * time.Millisecond)
+	// proxy := func(_ *http.Request) (*url.URL, error) {
+	// 	return url.Parse("http://127.0.0.1:8888")
+	// }
+	transport := &http.Transport{}
+
 	client := &http.Client{
 		Timeout:   timeout,
 		Transport: transport,
@@ -124,7 +131,7 @@ func Action(urls string, p map[string]string, method string) string {
 
 	status = <-outputs
 	vvvv, _ := json.Marshal(status)
-	fmt.Println(string(vvvv))
+	// fmt.Println(string(vvvv))
 	return string(vvvv)
 
 }
