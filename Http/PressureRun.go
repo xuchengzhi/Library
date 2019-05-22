@@ -1,4 +1,4 @@
-package main
+package PressureRun
 
 import "encoding/json"
 import "github.com/xuchengzhi/Library/Http"
@@ -53,9 +53,9 @@ func Action(num int, url, method string, params map[string]string) {
 	}
 }
 
-func main() {
-	params := make(map[string]string)
-	params["name"] = "test"
-	params["age"] = "ten"
-	Action(1000, "http://localhost:8082/v1/StsToken", "post", params)
-}
+// func main() {
+// 	params := make(map[string]string)
+// 	params["name"] = "test"
+// 	params["age"] = "ten"
+// 	Action(1000, "http://localhost:8082/v1/StsToken", "post", params)
+// }
