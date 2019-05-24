@@ -23,6 +23,7 @@ type ApiJson struct {
 	Status int         `json:"code"`
 	Msg    interface{} `json:"msg"`
 	Data   interface{} `json:"info"`
+	Time   interface{} `json:"time"`
 }
 
 var timeout time.Duration
@@ -50,20 +51,31 @@ func Post(p *Par, ch chan ApiJson) {
 	req, _ := http.NewRequest("POST", urls, strings.NewReader(data))
 	req.Header.Set("User-Agent", "goTest")
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
 	// proxy := func(_ *http.Request) (*url.URL, error) {
 	// 	return url.Parse("http://127.0.0.1:8888")
 	// }
-	transport := &http.Transport{}
+	// transport := &http.Transport{}
+	proxy := func(_ *http.Request) (*url.URL, error) {
+		return url.Parse("http://127.0.0.1:8888")
+	}
 
+	transport := &http.Transport{Proxy: proxy}
 	client := &http.Client{
 		Timeout:   timeout,
 		Transport: transport,
 	}
-
+	t1 := time.Now()
 	resp, err := client.Do(req)
 	// resp, err := transport.RoundTrip(req)
+	t2 := time.Now()
+	// runtime := (t2.Sub(t1))
+	var duration time.Duration = t2.Sub(t1)
+	runtime := fmt.Sprintf("%.03f", duration.Seconds())
+	fmt.Printf("Wait  [%v]\nMilliseconds [%d]\nSeconds [%.3f]\n", duration, duration.Nanoseconds()/1e6, duration.Seconds())
+	fmt.Println(runtime)
 	if err != nil {
-		ch <- ApiJson{2, "request canceled or time out", "error"}
+		ch <- ApiJson{2, "request canceled or time out", "error", runtime}
 	} else {
 
 		defer resp.Body.Close()
@@ -72,9 +84,9 @@ func Post(p *Par, ch chan ApiJson) {
 			fmt.Println(errs)
 		}
 		if resp.StatusCode != 200 {
-			ch <- ApiJson{1, "api error", string(body)}
+			ch <- ApiJson{1, "api error", string(body), runtime}
 		} else {
-			ch <- ApiJson{0, string(body), "success"}
+			ch <- ApiJson{0, string(body), "success", runtime}
 		}
 
 	}
@@ -103,26 +115,34 @@ func Get(p *Par, ch chan ApiJson) {
 		Transport: transport,
 	}
 
+	t1 := time.Now()
 	resp, err := client.Do(req)
 	// resp, err := transport.RoundTrip(req)
+	t2 := time.Now()
+	// runtime := t2.Sub(t1)
+	var duration time.Duration = t2.Sub(t1)
+	runtime := fmt.Sprintf("%.03f", duration.Seconds())
+	fmt.Printf("Wait  [%v]\nMilliseconds [%d]\nSeconds [%.3f]\n", duration, duration.Nanoseconds()/1e6, duration.Seconds())
+	fmt.Println(runtime)
 	if err != nil {
-		ch <- ApiJson{2, "request canceled or time out", "error"}
+		ch <- ApiJson{2, "request canceled or time out", "error", runtime}
 	} else {
+
 		defer resp.Body.Close()
 		body, errs := ioutil.ReadAll(resp.Body)
 		if errs != nil {
 			fmt.Println(errs)
 		}
 		if resp.StatusCode != 200 {
-			ch <- ApiJson{1, "api error", string(body)}
+			ch <- ApiJson{1, "api error", string(body), runtime}
 		} else {
-			ch <- ApiJson{0, string(body), "success"}
+			ch <- ApiJson{0, string(body), "success", runtime}
 		}
 
 	}
 }
 
-func Action(urls string, p map[string]string, method string) string {
+func Action(urls, method string, p map[string]string) string {
 
 	pars := &Par{urls, p}
 	outputs := make(chan ApiJson)
@@ -135,7 +155,7 @@ func Action(urls string, p map[string]string, method string) string {
 
 	status = <-outputs
 	vvvv, _ := json.Marshal(status)
-	// fmt.Println(string(vvvv))
+	fmt.Println(string(vvvv))
 	return string(vvvv)
 
 }
@@ -152,7 +172,7 @@ func PressureRun(num int, url, method string, params map[string]string) {
 	for i := 0; i < num; i++ {
 
 		go func() {
-			tmp := Action(url, params, method)
+			tmp := Action(url, method, params)
 			var res ResJson
 			// fmt.Println(reflect.TypeOf(tmp))
 			if err := json.Unmarshal([]byte(tmp), &res); err == nil {
