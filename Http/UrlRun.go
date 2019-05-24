@@ -71,9 +71,10 @@ func Post(p *Par, ch chan ApiJson) {
 	t2 := time.Now()
 	// runtime := (t2.Sub(t1))
 	var duration time.Duration = t2.Sub(t1)
+
 	runtime := fmt.Sprintf("%.03f", duration.Seconds())
-	fmt.Printf("Wait  [%v]\nMilliseconds [%d]\nSeconds [%.3f]\n", duration, duration.Nanoseconds()/1e6, duration.Seconds())
-	fmt.Println(runtime)
+	// fmt.Printf("Wait  [%v]\nMilliseconds [%d]\nSeconds [%.3f]\n", duration, duration.Nanoseconds()/1e6, duration.Seconds())
+	fmt.Println(duration)
 	if err != nil {
 		ch <- ApiJson{2, "request canceled or time out", "error", runtime}
 	} else {
