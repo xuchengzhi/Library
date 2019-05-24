@@ -106,6 +106,6 @@ func Gmd5(msg string) string {
 	h := md5.New()
 	h.Write([]byte(msg))
 	cipherStr := h.Sum(nil)
-	fmt.Println(hex.EncodeToString(cipherStr))
+	// fmt.Println(hex.EncodeToString(cipherStr))
 	return hex.EncodeToString(cipherStr)
 }
