@@ -84,7 +84,7 @@ func main() {
 }
 ```
 ```bash
-> 
+> Output:
 IOS包名me.myfont.HandFontMaker
 版本号4.7.0
 安卓包名com.handwriting.makefont
