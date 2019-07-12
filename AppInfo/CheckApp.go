@@ -87,7 +87,9 @@ func IOS(app string) AppInfo {
 	if path.Ext(app) == "ipa" {
 		app = ZipRename(app)
 	}
-	ZIP.Unzip(app, "SJZZ")
+	tmp := strings.Split(app, ".")
+	name := tmp[0]
+	ZIP.Unzip(app, name)
 
 	info, _ := FileFormat()
 
