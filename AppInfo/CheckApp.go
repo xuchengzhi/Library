@@ -16,6 +16,7 @@ import (
 type AppInfo struct {
 	Name    string
 	Version string
+	Appname string
 }
 
 func ZipRename(file string) string {
@@ -63,6 +64,7 @@ func FileFormat() (AppInfo, bool) {
 		fmt.Println(name, Appname, buildnum, builds)
 
 		info.Name = Appname
+		info.Appname = name
 		info.Version = builds
 		return info, true
 	} else {
@@ -76,6 +78,7 @@ func Adr(app string) AppInfo {
 	axmlParser.ParseApk(app, listener)
 	var info AppInfo
 	info.Name = listener.PackageName
+	info.Appname = listener.
 	info.Version = listener.VersionName
 	return info
 }
