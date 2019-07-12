@@ -30,6 +30,7 @@ func main() {
 }
 ```
 - 二维码生成
+str, name, colors, bolors, x, y 分别为：二维码内容、名称、前景色、背景色 ，宽高
 ```bash
 package main
 
@@ -44,9 +45,9 @@ func main() {
     Qr.Builds(str, name, colors, bolors, x, y)
 }
 ```
-str, name, colors, bolors, x, y 分别为：二维码内容、名称、前景色、背景色 ，宽高
 
--获取时间戳和格式化时间
+
+- 获取时间戳和格式化时间
 ```bash
 package main
 
