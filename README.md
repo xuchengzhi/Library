@@ -45,7 +45,7 @@ func main() {
     Qr.Builds(str, name, colors, bolors, x, y)
 }
 ```
-
+![enter description here](https://github.com/xuchengzhi/Library/blob/master/Qrcode/ceshi.png)
 
 - 获取时间戳和格式化时间
 ```bash
