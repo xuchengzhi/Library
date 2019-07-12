@@ -80,13 +80,13 @@ func main() {
     IOS := CheckApp.IOS("./ceshi.ipa")
     ADR := CheckApp.Adr("./ceshi.apk")
     fmt.Println("IOS包名%v，版本号%v",ADR.Name,Version)
-    fmt.Println("IOS包名%v，版本号%v",ADR.Name,Version)
+    fmt.Println("安卓包名%v，版本号%v",ADR.Name,Version)
 }
 ```
 ```bash
 > 
-    IOS包名me.myfont.HandFontMaker
-    版本号4.7.0
-    IOS包名com.handwriting.makefont
-    版本号4.7.0
+IOS包名me.myfont.HandFontMaker
+版本号4.7.0
+安卓包名com.handwriting.makefont
+版本号4.7.0
 ```
