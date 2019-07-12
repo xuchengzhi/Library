@@ -10,12 +10,6 @@ import (
 	"strings"
 )
 
-func rename(file string) string {
-	name := strings.Split(file, ".")[0]
-	os.Rename(file, name+".zip")
-	return name + ".zip"
-}
-
 func Zip(srcFile string, destZip string) error {
 	zipfile, err := os.Create(destZip)
 	if err != nil {
