@@ -1,14 +1,18 @@
 package CheckApp
 
+// package main
+
 import (
 	// "bytes"
+	// "encoding/json"
 	"encoding/xml"
 	"fmt"
 	"github.com/lunny/axmlParser"
-	"github.com/xuchengzhi/Library/FileZip"
+	// "github.com/xuchengzhi/Library/FileZip"
 	"io/ioutil"
 	"os"
-	"path"
+	"os/exec"
+	// "path"
 	// "reflect"
 	"strings"
 )
@@ -39,59 +43,103 @@ func PathExists(path string) (bool, error) {
 type Result struct {
 	XMLName    xml.Name `xml:"plist"` //标签上的标签名
 	StringList []string `xml:"dict>string"`
+	KeyList    []string `xml:"dict>key"`
 }
 
 func FileFormat() (AppInfo, bool) {
-	files := "./SJZZ/Payload/SJZZ.app/Info.plist"
+	files := "./Payload/SJZZ.app/Info.plist"
 	stats, err := PathExists(files)
 	var info AppInfo
 	if err != nil {
 		fmt.Println(err)
 		return info, false
 	}
-	var name, buildnum, builds, Appname string
+	var name, builds, Appname string
 
 	if stats {
 		var result Result
 		content, _ := ioutil.ReadFile(files)
 		xml.Unmarshal(content, &result)
+
 		strs := result.StringList
-		name = strs[7]
-		buildnum = strs[19]
-		builds = strs[11]
-		Appname = strs[23]
+		keys := result.KeyList
 
-		fmt.Println(name, Appname, buildnum, builds)
+		fmt.Println(len(strs), len(keys))
+		// name = strs[7]
+		// buildnum = strs[19]
+		// builds = strs[11]
+		// Appname = strs[23]
 
+		// fmt.Println(name, Appname, buildnum, builds)
+		for i := 0; i < len(strs); i++ {
+			fmt.Println(keys[i], strs[i])
+			if keys[i] == "CFBundleName" {
+				fmt.Println(strs[i])
+			}
+		}
 		info.Name = Appname
 		info.Appsname = name
 		info.Version = builds
+		// os.RemoveAll("./Payload")
 		return info, true
 	} else {
+		os.RemoveAll("./Payload")
 		return info, false
 	}
 
 }
 
-func Adr(app string) AppInfo {
+func Adr(app string) AppJson {
 	listener := new(axmlParser.AppNameListener)
 	axmlParser.ParseApk(app, listener)
-	var info AppInfo
-	info.Appsname = ""
+	var info AppJson
 	info.Name = listener.PackageName
 	info.Version = listener.VersionName
+	info.VCode = listener.VersionCode
 	return info
 }
 
-func IOS(app string) AppInfo {
-	if path.Ext(app) == "ipa" {
-		app = ZipRename(app)
+type AppJson struct {
+	Name    string
+	Version string
+	VCode   string
+}
+
+func IOS(app string) AppJson {
+
+	cmd := exec.Command("java", "-jar", "CheckApp.jar", app)
+	out, err := cmd.Output()
+	if err != nil {
+		fmt.Println(err)
 	}
-	tmp := strings.Split(app, ".")
-	name := tmp[0]
-	ZIP.Unzip(app, name)
+	str := strings.Replace(string(out), ",", ",", -1)
+	str = strings.Replace(str, " ", "", -1)
+	str = strings.Replace(str, "=", ":", -1)
+	str = strings.Replace(str, "{", "", -1)
+	str = strings.Replace(str, "}", "", -1)
+	str = strings.Replace(str, "\r", "", -1)
+	str = strings.Replace(str, "\n", "", -1)
+	t := strings.Split(str, ",")
+	var apps AppJson
+	for i := 0; i < len(t); i++ {
+		s := strings.Split(t[i], ":")
+		if s[0] == "package" {
+			apps.Name = s[1]
+		} else if s[0] == "versionName" {
+			apps.Version = s[1]
 
-	info, _ := FileFormat()
+		} else if s[0] == "versionCode" {
+			apps.VCode = s[1]
 
-	return info
+		}
+
+	}
+	return apps
 }
+
+// func main() {
+
+// 	fmt.Println(IOS("./1.ipa"))
+// 	fmt.Println(Adr("./ceshi.apk"))
+// 	// IOS("./SJZZ.ipa")
+// }
