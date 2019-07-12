@@ -71,10 +71,6 @@ func FileFormat() (AppInfo, bool) {
 
 }
 
-func test() {
-
-}
-
 func Adr(app string) AppInfo {
 	listener := new(axmlParser.AppNameListener)
 	axmlParser.ParseApk(app, listener)
