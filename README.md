@@ -30,7 +30,7 @@ func main() {
 }
 ```
 - 二维码生成
-str, name, colors, bolors, x, y 分别为：二维码内容、名称、前景色、背景色 ，宽高
+> str, name, colors, bolors, x, y 分别为：二维码内容、名称、前景色、背景色 ，宽高
 ```bash
 package main
 
