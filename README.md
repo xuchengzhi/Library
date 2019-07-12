@@ -5,7 +5,7 @@
 方法 XorEncodeStr 异或加密，参数msg,key
 方法 XorEncodeStr 异或解密，参数msg,key
 
-
+```bash
 package main
 
 import "fmt"
@@ -16,11 +16,11 @@ func main() {
     fmt.Println(msg)
     fmt.Println(XorEnc.XorDecodeStr(msg, "abc123testdfdf"))
 }
-
+```
 - WebSocket 测试
 
 server 启动WebSocket服务，参数 port 
-
+```bash
 package main
 
 import "github.com/xuchengzhi/Library/WebSocket"
@@ -28,8 +28,9 @@ import "github.com/xuchengzhi/Library/WebSocket"
 func main() {
     server.Act("8998")
 }
-
+```
 - 二维码生成
+```bash
 package main
 
 import "github.com/xuchengzhi/Library/Qrcode"
@@ -42,10 +43,11 @@ func main() {
     colors := "000000"
     Qr.Builds(str, name, colors, bolors, x, y)
 }
-
+```
 str, name, colors, bolors, x, y 分别为：二维码内容、名称、前景色、背景色 ，宽高
 
 -获取时间戳和格式化时间
+```bash
 package main
 
 import "github.com/xuchengzhi/Library/Time"
@@ -63,9 +65,10 @@ func main() {
     fmt.Println(timestmap)
     fmt.Println(timesformat)
 }
-
+```
 
 - 获取apk/ipa 包名版本号
+```bash
 package main
 
 import "github.com/xuchengzhi/Library/AppInfo"
@@ -76,3 +79,4 @@ func main() {
     AppInfo := CheckApp.IOS("./ceshi.ipa")
     AppInfo := CheckApp.Adr("./ceshi.apk")
 }
+```
