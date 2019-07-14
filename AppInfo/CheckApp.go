@@ -110,7 +110,7 @@ type AppJson struct {
 func IOS(app string) AppJson {
 	abspath,_ := filepath.Abs(filepath.Dir("CheckApp.jar"))
 	Apath := fmt.Sprintf("%v/CheckApp.jar",abspath)
-	log.Println(Apth)
+	log.Println(Apath)
 	cmd := exec.Command("java", "-jar", Apath, app)
 	out, err := cmd.Output()
 	if err != nil {
