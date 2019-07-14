@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	// "path"
+	"path/filepath"
 	// "reflect"
 	"strings"
 )
@@ -106,8 +107,9 @@ type AppJson struct {
 }
 
 func IOS(app string) AppJson {
-
-	cmd := exec.Command("java", "-jar", "CheckApp.jar", app)
+	abspath,_ := filepath.Abs(filepath.Dir("CheckApp.jar"))
+	Apath := fmt.Sprintf("%v/CheckApp.jar",abspath)
+	cmd := exec.Command("java", "-jar", Apath, app)
 	out, err := cmd.Output()
 	if err != nil {
 		fmt.Println(err)
@@ -139,7 +141,7 @@ func IOS(app string) AppJson {
 
 // func main() {
 
-// 	fmt.Println(IOS("./1.ipa"))
-// 	fmt.Println(Adr("./ceshi.apk"))
+// 	fmt.Println(IOS("/Users/yinmiaomiao/Desktop/code/go/ceshi.ipa"))
+// 	// fmt.Println(Adr("./ceshi.apk"))
 // 	// IOS("./SJZZ.ipa")
 // }
