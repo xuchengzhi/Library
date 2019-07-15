@@ -1,6 +1,6 @@
-package CheckApp
+// package CheckApp
 
-// package main
+package main
 
 import (
 	// "bytes"
@@ -122,7 +122,9 @@ func IOS(app string) (bool, AppJson) {
 	abspath, _ := filepath.Abs(filepath.Dir("CheckApp.jar"))
 	var apps AppJson
 	stats, errs := PathExists(app)
-	if PathExists("CheckApp.jar") == false {
+	jars, jerr := PathExists("./CheckApp.jar")
+	if jars == false {
+		log.Println(jerr)
 		return false, apps
 	}
 	if errs != nil {
@@ -166,12 +168,12 @@ func IOS(app string) (bool, AppJson) {
 
 }
 
-// func main() {
+func main() {
 
-// 	status, appinfo := Adr("E:/code/py/shoujizaozi_Test/pachong/study/appdown/App/android/008f6895-cf2e-41d4-a715-d795f52ce4db.apk")
-// 	if status {
-// 		fmt.Println(appinfo)
-// 	}
-// 	// fmt.Println(Adr("./ceshi.apk"))
-// 	// IOS("./SJZZ.ipa")
-// }
+	status, appinfo := IOS("E:/code/py/shoujizaozi_Test/pachong/study/appdown/App/IOS/9b497ab9-69b3-4dd1-b97b-58cca6bf339a.ipa")
+	if status {
+		fmt.Println(appinfo)
+	}
+	// fmt.Println(Adr("./ceshi.apk"))
+	// IOS("./SJZZ.ipa")
+}
