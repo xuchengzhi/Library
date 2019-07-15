@@ -75,13 +75,20 @@ package main
 import "github.com/xuchengzhi/Library/AppInfo"
 import "fmt"
 
-
 func main() {
-    IOS := CheckApp.IOS("./ceshi.ipa")
-    ADR := CheckApp.Adr("./ceshi.apk")
-    fmt.Println("IOS包名%v，版本号%v",ADR.Name,Version)
-    fmt.Println("安卓包名%v，版本号%v",ADR.Name,Version)
+    Istats, IOS := CheckApp.IOS("E:/code/py/shoujizaozi_Test/pachong/study/appdown/App/IOS/9b497ab9-69b3-4dd1-b97b-58cca6bf339a.ipa")
+    Astats, ADR := CheckApp.Adr("./ceshi.apk")
+    if Istats {
+        fmt.Printf("IOS包名%v\n", IOS.Name)
+        fmt.Printf("版本号%v\n", IOS.Version)
+    }
+    if Astats {
+        fmt.Printf("IOS包名%v\n", ADR.Name)
+        fmt.Printf("版本号%v\n", ADR.Version)
+    }
+
 }
+
 ```
 ```bash
 > Output:
