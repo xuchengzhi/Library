@@ -1,6 +1,6 @@
-// package CheckApp
+package CheckApp
 
-package main
+// package main
 
 import (
 	// "bytes"
