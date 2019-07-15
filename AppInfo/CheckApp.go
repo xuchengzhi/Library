@@ -121,17 +121,18 @@ type AppJson struct {
 func IOS(app string) (bool, AppJson) {
 	abspath, _ := filepath.Abs(filepath.Dir("CheckApp.jar"))
 	var apps AppJson
+	Apath := fmt.Sprintf("%v/CheckApp.jar", abspath)
 	stats, errs := PathExists(app)
-	jars, jerr := PathExists("./CheckApp.jar")
+	jars, _ := PathExists("./CheckApp.jar")
 	if jars == false {
-		log.Println(jerr)
+		log.Printf("jar包%v不存在", Apath)
 		return false, apps
 	}
 	if errs != nil {
 		log.Println(errs)
 		return false, apps
 	}
-	Apath := fmt.Sprintf("%v/CheckApp.jar", abspath)
+
 	cmd := exec.Command("java", "-jar", Apath, app)
 	out, err := cmd.Output()
 	if err != nil {
