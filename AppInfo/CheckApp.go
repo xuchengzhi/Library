@@ -95,7 +95,7 @@ func Adr(app string) (bool, AppJson) {
 	var info AppJson
 	stats, err := PathExists(app)
 	if err != nil {
-
+		log.Println("apk文件不存在")
 		return false, info
 	}
 	if stats {
@@ -107,6 +107,7 @@ func Adr(app string) (bool, AppJson) {
 		info.VCode = listener.VersionCode
 		return true, info
 	} else {
+		log.Println("apk文件不存在")
 		return false, info
 	}
 
@@ -124,6 +125,7 @@ func IOS(app string) (bool, AppJson) {
 	Apath := fmt.Sprintf("%v/CheckApp.jar", abspath)
 	stats, errs := PathExists(app)
 	jars, _ := PathExists("./CheckApp.jar")
+	jars, _ := PathExists(app)
 	if jars == false {
 		log.Printf("jar包%v不存在", Apath)
 		return false, apps
