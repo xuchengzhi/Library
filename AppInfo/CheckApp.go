@@ -1,6 +1,6 @@
-// package CheckApp
+package CheckApp
 
-package main
+// package main
 
 import (
 	// "bytes"
@@ -168,12 +168,12 @@ func IOS(app string) (bool, AppJson) {
 
 }
 
-func main() {
+// func main() {
 
-	status, appinfo := IOS("E:/code/py/shoujizaozi_Test/pachong/study/appdown/App/IOS/9b497ab9-69b3-4dd1-b97b-58cca6bf339a.ipa")
-	if status {
-		fmt.Println(appinfo)
-	}
-	// fmt.Println(Adr("./ceshi.apk"))
-	// IOS("./SJZZ.ipa")
-}
+// 	status, appinfo := IOS("E:/code/py/shoujizaozi_Test/pachong/study/appdown/App/IOS/9b497ab9-69b3-4dd1-b97b-58cca6bf339a.ipa")
+// 	if status {
+// 		fmt.Println(appinfo)
+// 	}
+// 	// fmt.Println(Adr("./ceshi.apk"))
+// 	// IOS("./SJZZ.ipa")
+// }
