@@ -122,6 +122,9 @@ func IOS(app string) (bool, AppJson) {
 	abspath, _ := filepath.Abs(filepath.Dir("CheckApp.jar"))
 	var apps AppJson
 	stats, errs := PathExists(app)
+	if PathExists("CheckApp.jar") == false {
+		return false, apps
+	}
 	if errs != nil {
 		log.Println(errs)
 		return false, apps
