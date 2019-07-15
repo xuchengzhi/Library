@@ -125,7 +125,11 @@ func IOS(app string) (bool, AppJson) {
 	Apath := fmt.Sprintf("%v/CheckApp.jar", abspath)
 	stats, errs := PathExists(app)
 	jars, _ := PathExists("./CheckApp.jar")
-	jars, _ := PathExists(app)
+	apk, _ := PathExists(app)
+	if apk == false {
+		log.Printf("ipa包%v不存在", app)
+		return false, apps
+	}
 	if jars == false {
 		log.Printf("jar包%v不存在", Apath)
 		return false, apps
