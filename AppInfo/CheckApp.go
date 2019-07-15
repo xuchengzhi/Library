@@ -1,6 +1,6 @@
-package CheckApp
+// package CheckApp
 
-// package main
+package main
 
 import (
 	// "bytes"
@@ -13,8 +13,8 @@ import (
 	"os"
 	"os/exec"
 	// "path"
-	"path/filepath"
 	"log"
+	"path/filepath"
 	// "reflect"
 	"strings"
 )
@@ -91,14 +91,25 @@ func FileFormat() (AppInfo, bool) {
 
 }
 
-func Adr(app string) AppJson {
-	listener := new(axmlParser.AppNameListener)
-	axmlParser.ParseApk(app, listener)
+func Adr(app string) (bool, AppJson) {
 	var info AppJson
-	info.Name = listener.PackageName
-	info.Version = listener.VersionName
-	info.VCode = listener.VersionCode
-	return info
+	stats, err := PathExists(app)
+	if err != nil {
+
+		return false, info
+	}
+	if stats {
+		listener := new(axmlParser.AppNameListener)
+		axmlParser.ParseApk(app, listener)
+
+		info.Name = listener.PackageName
+		info.Version = listener.VersionName
+		info.VCode = listener.VersionCode
+		return true, info
+	} else {
+		return false, info
+	}
+
 }
 
 type AppJson struct {
@@ -107,44 +118,57 @@ type AppJson struct {
 	VCode   string
 }
 
-func IOS(app string) AppJson {
-	abspath,_ := filepath.Abs(filepath.Dir("CheckApp.jar"))
-	Apath := fmt.Sprintf("%v/CheckApp.jar",abspath)
-	log.Println(Apath)
-	log.Println(app)
+func IOS(app string) (bool, AppJson) {
+	abspath, _ := filepath.Abs(filepath.Dir("CheckApp.jar"))
+	var apps AppJson
+	stats, errs := PathExists(app)
+	if errs != nil {
+		log.Println(errs)
+		return false, apps
+	}
+	Apath := fmt.Sprintf("%v/CheckApp.jar", abspath)
 	cmd := exec.Command("java", "-jar", Apath, app)
 	out, err := cmd.Output()
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
+		return false, apps
 	}
-	str := strings.Replace(string(out), ",", ",", -1)
-	str = strings.Replace(str, " ", "", -1)
-	str = strings.Replace(str, "=", ":", -1)
-	str = strings.Replace(str, "{", "", -1)
-	str = strings.Replace(str, "}", "", -1)
-	str = strings.Replace(str, "\r", "", -1)
-	str = strings.Replace(str, "\n", "", -1)
-	t := strings.Split(str, ",")
-	var apps AppJson
-	for i := 0; i < len(t); i++ {
-		s := strings.Split(t[i], ":")
-		if s[0] == "package" {
-			apps.Name = s[1]
-		} else if s[0] == "versionName" {
-			apps.Version = s[1]
+	if stats {
+		str := strings.Replace(string(out), ",", ",", -1)
+		str = strings.Replace(str, " ", "", -1)
+		str = strings.Replace(str, "=", ":", -1)
+		str = strings.Replace(str, "{", "", -1)
+		str = strings.Replace(str, "}", "", -1)
+		str = strings.Replace(str, "\r", "", -1)
+		str = strings.Replace(str, "\n", "", -1)
+		t := strings.Split(str, ",")
 
-		} else if s[0] == "versionCode" {
-			apps.VCode = s[1]
+		for i := 0; i < len(t); i++ {
+			s := strings.Split(t[i], ":")
+			if s[0] == "package" {
+				apps.Name = s[1]
+			} else if s[0] == "versionName" {
+				apps.Version = s[1]
+
+			} else if s[0] == "versionCode" {
+				apps.VCode = s[1]
+
+			}
 
 		}
-
+		return true, apps
+	} else {
+		return false, apps
 	}
-	return apps
+
 }
 
 // func main() {
 
-// 	fmt.Println(IOS("/Users/yinmiaomiao/Desktop/code/go/ceshi.ipa"))
+// 	status, appinfo := Adr("E:/code/py/shoujizaozi_Test/pachong/study/appdown/App/android/008f6895-cf2e-41d4-a715-d795f52ce4db.apk")
+// 	if status {
+// 		fmt.Println(appinfo)
+// 	}
 // 	// fmt.Println(Adr("./ceshi.apk"))
 // 	// IOS("./SJZZ.ipa")
 // }
