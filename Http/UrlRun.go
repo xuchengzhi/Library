@@ -212,7 +212,6 @@ func PressureRun(num int, url, method string, params map[string]string) {
 // 	params["name"] = "test"
 // 	params["age"] = "ten"
 // 	// tmp := UrlRun.Action("http://192.168.248.188:8082/v1/StsToken", params, "get")
-// 	PressureRun(10000, "http://hw.xiezixiansheng.com/ceshi.php", "post", params)
 // 	// var res ResJson
 // 	// fmt.Println(reflect.TypeOf(tmp))
 // 	// if err := json.Unmarshal([]byte(tmp), &res); err == nil {
