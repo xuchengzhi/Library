@@ -1,5 +1,7 @@
 package UrlRun
 
+// package main
+
 import (
 	"fmt"
 	// "github.com/xuchengzhi/Library/Time"
@@ -10,6 +12,7 @@ import (
 	"net/url"
 	// "reflect"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -143,7 +146,7 @@ func Get(p *Par, ch chan ApiJson) {
 	}
 }
 
-func Action(urls, method string, p map[string]string) string {
+func Action(urls, method string, p map[string]string, Run_sync *sync.WaitGroup) string {
 
 	pars := &Par{urls, p}
 	outputs := make(chan ApiJson)
@@ -153,7 +156,7 @@ func Action(urls, method string, p map[string]string) string {
 	} else {
 		go Get(pars, outputs)
 	}
-
+	defer Run_sync.Done()
 	status = <-outputs
 	vvvv, _ := json.Marshal(status)
 	fmt.Println(string(vvvv))
@@ -170,10 +173,11 @@ type ResJson struct {
 func PressureRun(num int, url, method string, params map[string]string) {
 	errors := 0
 	var res string
+	var Run_sync sync.WaitGroup
 	for i := 0; i < num; i++ {
-
+		Run_sync.Add(1)
 		go func() {
-			tmp := Action(url, method, params)
+			tmp := Action(url, method, params, &Run_sync)
 			var res ResJson
 			// fmt.Println(reflect.TypeOf(tmp))
 			if err := json.Unmarshal([]byte(tmp), &res); err == nil {
@@ -189,6 +193,7 @@ func PressureRun(num int, url, method string, params map[string]string) {
 
 		time.Sleep(1)
 	}
+	Run_sync.Wait()
 	if errors != 0 {
 		error_rate := float64(errors) / float64(num) * 100
 		res = fmt.Sprintf("错误数：%v，错误率：%.2f%%", errors, error_rate)
@@ -206,16 +211,17 @@ func PressureRun(num int, url, method string, params map[string]string) {
 // 	params := make(map[string]string)
 // 	params["name"] = "test"
 // 	params["age"] = "ten"
-// 	tmp := UrlRun.Action("http://192.168.248.188:8082/v1/StsToken", params, "get")
-// 	var res ResJson
-// 	fmt.Println(reflect.TypeOf(tmp))
-// 	if err := json.Unmarshal([]byte(tmp), &res); err == nil {
-// 		if res.Code == 0 {
-// 			fmt.Println("yes")
-// 		} else {
-// 			fmt.Println("no")
-// 		}
-// 	} else {
-// 		fmt.Println(err)
-// 	}
+// 	// tmp := UrlRun.Action("http://192.168.248.188:8082/v1/StsToken", params, "get")
+// 	PressureRun(10000, "http://hw.xiezixiansheng.com/ceshi.php", "post", params)
+// 	// var res ResJson
+// 	// fmt.Println(reflect.TypeOf(tmp))
+// 	// if err := json.Unmarshal([]byte(tmp), &res); err == nil {
+// 	// 	if res.Code == 0 {
+// 	// 		fmt.Println("yes")
+// 	// 	} else {
+// 	// 		fmt.Println("no")
+// 	// 	}
+// 	// } else {
+// 	// 	fmt.Println(err)
+// 	// }
 // }
