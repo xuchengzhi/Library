@@ -59,14 +59,14 @@ func Post(p *Par, ch chan ApiJson) {
 	// 	return url.Parse("http://127.0.0.1:8888")
 	// }
 	// transport := &http.Transport{}
-	proxy := func(_ *http.Request) (*url.URL, error) {
-		return url.Parse("http://127.0.0.1:8888")
-	}
+	// proxy := func(_ *http.Request) (*url.URL, error) {
+	// 	return url.Parse("http://127.0.0.1:8888")
+	// }
 
-	transport := &http.Transport{Proxy: proxy}
+	// transport := &http.Transport{Proxy: proxy}
 	client := &http.Client{
-		Timeout:   timeout,
-		Transport: transport,
+		Timeout: timeout,
+		// Transport: transport,
 	}
 	t1 := time.Now()
 	resp, err := client.Do(req)
