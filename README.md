@@ -97,3 +97,15 @@ IOS包名me.myfont.HandFontMaker
 安卓包名com.handwriting.makefont
 版本号4.7.0
 ```
+
+- 获取随机字符串
+```bash
+package main
+
+import "github.com/xuchengzhi/Library/Random"
+
+func main() {
+    msg := Randoms.GetRandomInt(10000, 99999) //GetRandomString(18)
+    log.Println(msg)
+}
+```

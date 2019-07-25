@@ -1,7 +1,7 @@
 package Randoms
 
 import (
-	"log"
+	// "log"
 	"math/rand"
 	"time"
 )
