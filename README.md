@@ -102,8 +102,10 @@ IOS包名me.myfont.HandFontMaker
 ```bash
 package main
 
-import "github.com/xuchengzhi/Library/Random"
-
+import (
+    "github.com/xuchengzhi/Library/Random"
+    "log"
+    )
 func main() {
     msg := Randoms.GetRandomInt(10000, 99999) //GetRandomString(18)
     log.Println(msg)
