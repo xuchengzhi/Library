@@ -111,3 +111,19 @@ func main() {
     log.Println(msg)
 }
 ```
+
+- 进制转换
+
+进制转换引用 https://blog.csdn.net/flyfreelyit/article/details/80097035
+
+```bash
+package main
+
+import (
+    "github.com/xuchengzhi/Library/Transfar"
+    "log"
+    )
+func main() {
+    log.Println(DecBin(10))
+}
+```
