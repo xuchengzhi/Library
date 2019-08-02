@@ -3,10 +3,10 @@ package UrlRun
 // package main
 
 import (
-	"fmt"
-	// "github.com/xuchengzhi/Library/Time"
 	"context"
 	"encoding/json"
+	"fmt"
+	"github.com/xuchengzhi/Library/Time"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -26,7 +26,8 @@ type ApiJson struct {
 	Status int         `json:"code"`
 	Msg    interface{} `json:"msg"`
 	Data   interface{} `json:"info"`
-	Time   interface{} `json:"time"`
+	Time   interface{} `json:"responsetime"`
+	Dates  interface{} `json:"rundates"`
 }
 
 var timeout time.Duration
@@ -81,7 +82,7 @@ func Post(p *Par, ch chan ApiJson) {
 
 	// fmt.Println(duration)
 	if err != nil {
-		ch <- ApiJson{2, "time out", "error", runtime}
+		ch <- ApiJson{2, "time out", "error", runtime, GetTime.TS()}
 	} else {
 
 		defer resp.Body.Close()
@@ -90,9 +91,9 @@ func Post(p *Par, ch chan ApiJson) {
 			fmt.Println(errs)
 		}
 		if resp.StatusCode != 200 {
-			ch <- ApiJson{1, "api error", string(body), runtime}
+			ch <- ApiJson{1, "api error", string(body), runtime, GetTime.TS()}
 		} else {
-			ch <- ApiJson{0, string(body), "success", runtime}
+			ch <- ApiJson{0, string(body), "success", runtime, GetTime.TS()}
 		}
 
 	}
@@ -104,6 +105,8 @@ func Get(p *Par, ch chan ApiJson) {
 	// fmt.Println(urls)
 	par := p.params
 	req, _ := http.NewRequest("GET", urls, nil)
+	ctx, _ := context.WithTimeout(context.Background(), timeout) //设置超时时间
+	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "goTest")
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	q := req.URL.Query()
@@ -117,7 +120,7 @@ func Get(p *Par, ch chan ApiJson) {
 	transport := &http.Transport{}
 
 	client := &http.Client{
-		Timeout:   timeout,
+		// Timeout:   timeout,
 		Transport: transport,
 	}
 
@@ -131,7 +134,7 @@ func Get(p *Par, ch chan ApiJson) {
 	fmt.Printf("Wait  [%v]\nMilliseconds [%d]\nSeconds [%.3f]\n", duration, duration.Nanoseconds()/1e6, duration.Seconds())
 	fmt.Println(runtime)
 	if err != nil {
-		ch <- ApiJson{2, "request canceled or time out", "error", runtime}
+		ch <- ApiJson{2, "request canceled or time out", "error", runtime, GetTime.TS()}
 	} else {
 
 		defer resp.Body.Close()
@@ -140,9 +143,9 @@ func Get(p *Par, ch chan ApiJson) {
 			fmt.Println(errs)
 		}
 		if resp.StatusCode != 200 {
-			ch <- ApiJson{1, "api error", string(body), runtime}
+			ch <- ApiJson{1, "api error", string(body), runtime, GetTime.TS()}
 		} else {
-			ch <- ApiJson{0, string(body), "success", runtime}
+			ch <- ApiJson{0, string(body), "success", runtime, GetTime.TS()}
 		}
 
 	}
