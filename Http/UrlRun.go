@@ -178,6 +178,7 @@ type ResJson struct {
 func PressureRun(num int, url, method string, params map[string]string) {
 	errors := 0
 	var res string
+	time1 := time.Now()
 	var Run_sync sync.WaitGroup
 	for i := 0; i < num; i++ {
 		Run_sync.Add(1)
@@ -199,9 +200,10 @@ func PressureRun(num int, url, method string, params map[string]string) {
 		time.Sleep(1)
 	}
 	Run_sync.Wait()
+	time2 := time.Now()
 	if errors != 0 {
 		error_rate := float64(errors) / float64(num) * 100
-		res = fmt.Sprintf("错误数：%v，错误率：%.2f%%", errors, error_rate)
+		res = fmt.Sprintf("错误数：%v，错误率：%.2f%%,运行时间：%v", errors, error_rate, time2.Sub(time1))
 
 	} else {
 		res = fmt.Sprintf("已全部执行完成")
