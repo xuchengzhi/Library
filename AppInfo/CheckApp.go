@@ -20,9 +20,10 @@ import (
 )
 
 type AppInfo struct {
-	Name     string
-	Version  string
-	Appsname string
+	Name        string
+	Version     string
+	Appsname    string
+	packageName string
 }
 
 func ZipRename(file string) string {
@@ -114,9 +115,10 @@ func Adr(app string) (bool, AppJson) {
 }
 
 type AppJson struct {
-	Name    string
-	Version string
-	VCode   string
+	Name        string
+	Version     string
+	VCode       string
+	packageName string
 }
 
 func IOS(app string) (bool, AppJson) {
@@ -145,6 +147,7 @@ func IOS(app string) (bool, AppJson) {
 		log.Println(err)
 		return false, apps
 	}
+	log.Println(string(out))
 	if stats {
 		str := strings.Replace(string(out), ",", ",", -1)
 		str = strings.Replace(str, " ", "", -1)
@@ -165,6 +168,8 @@ func IOS(app string) (bool, AppJson) {
 			} else if s[0] == "versionCode" {
 				apps.VCode = s[1]
 
+			} else if s[0] == "packageName" {
+				apps.packageName = s[1]
 			}
 
 		}
@@ -177,10 +182,10 @@ func IOS(app string) (bool, AppJson) {
 
 // func main() {
 
-// 	status, appinfo := IOS("E:/code/py/shoujizaozi_Test/pachong/study/appdown/App/IOS/9b497ab9-69b3-4dd1-b97b-58cca6bf339a.ipa")
-// 	if status {
-// 		fmt.Println(appinfo)
-// 	}
-// 	// fmt.Println(Adr("./ceshi.apk"))
-// 	// IOS("./SJZZ.ipa")
+// status, appinfo := IOS("E:/go/data/src/github.com/xuchengzhi/apimonitor/App/IOS/6f2e18e1-242d-4ad6-b691-94dcac6cab7d.ipa")
+// if status {
+// 	fmt.Println(appinfo)
+// }
+// fmt.Println(Adr("./ceshi.apk"))
+// IOS("./SJZZ.ipa")
 // }
