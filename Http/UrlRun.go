@@ -5,7 +5,7 @@ package UrlRun
 import (
 	"fmt"
 	// "github.com/xuchengzhi/Library/Time"
-	// "context"
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -35,7 +35,7 @@ var is_res, is_proxy bool
 
 func init() {
 
-	timeout = time.Duration(500 * time.Millisecond)
+	timeout = time.Duration(1000 * time.Millisecond)
 	is_res = true
 	is_proxy = false
 }
@@ -52,6 +52,8 @@ func Post(p *Par, ch chan ApiJson) {
 
 	data := clusterinfo.Encode()
 	req, _ := http.NewRequest("POST", urls, strings.NewReader(data))
+	ctx, _ := context.WithTimeout(context.Background(), timeout) //设置超时时间
+	req = req.WithContext(ctx)
 	req.Header.Set("User-Agent", "goTest")
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
@@ -59,14 +61,14 @@ func Post(p *Par, ch chan ApiJson) {
 	// 	return url.Parse("http://127.0.0.1:8888")
 	// }
 	// transport := &http.Transport{}
-	// proxy := func(_ *http.Request) (*url.URL, error) {
-	// 	return url.Parse("http://127.0.0.1:8888")
-	// }
+	proxy := func(_ *http.Request) (*url.URL, error) {
+		return url.Parse("http://127.0.0.1:8888")
+	}
 
-	// transport := &http.Transport{Proxy: proxy}
+	transport := &http.Transport{Proxy: proxy}
 	client := &http.Client{
-		Timeout: timeout,
-		// Transport: transport,
+		// Timeout:   timeout,
+		Transport: transport,
 	}
 	t1 := time.Now()
 	resp, err := client.Do(req)
@@ -75,11 +77,11 @@ func Post(p *Par, ch chan ApiJson) {
 	// runtime := (t2.Sub(t1))
 	var duration time.Duration = t2.Sub(t1)
 
-	runtime := fmt.Sprintf("%.03f", duration.Seconds())
-	// fmt.Printf("Wait  [%v]\nMilliseconds [%d]\nSeconds [%.3f]\n", duration, duration.Nanoseconds()/1e6, duration.Seconds())
-	fmt.Println(duration)
+	runtime := fmt.Sprintf("%.03f S", duration.Seconds())
+
+	// fmt.Println(duration)
 	if err != nil {
-		ch <- ApiJson{2, "request canceled or time out", "error", runtime}
+		ch <- ApiJson{2, "time out", "error", runtime}
 	} else {
 
 		defer resp.Body.Close()
