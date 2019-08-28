@@ -13,6 +13,8 @@
 
         window.onload = function() {
 
+            logs();
+
             console.log("onload");
 
             sock = new WebSocket(wsuri);
@@ -37,8 +39,27 @@
             }
 
         };
-        function res(){
+        function logs(){
+            sock = new WebSocket("ws://127.0.0.1:1234/log");
 
+            sock.onopen = function() {
+
+                console.log("connected");
+
+            }
+
+            sock.onclose = function(e) {
+
+
+                console.log("connection closed (" + e.code + ")");
+
+            }
+
+            sock.onmessage = function(e) {
+                
+                document.getElementById('log').innerText= e.data;
+
+            }
         };
         function send() {
 
@@ -69,7 +90,7 @@
 
     <button onclick="send();">Send Message</button>
     <div id ="ms" style="margin-top:10%"></div>
-
+    <div id = "log"></div>
 </body>
 
 </html>

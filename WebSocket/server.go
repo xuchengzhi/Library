@@ -1,60 +1,150 @@
-package server
+package main
 
 import (
 	"fmt"
+
 	"golang.org/x/net/websocket"
+
+	"html/template" //支持模板html
+
+	"log"
+
 	"net/http"
-	"os"
-	"time"
+
+	"io/ioutil"
 )
 
-//错误处理函数
-func checkErr(err error, extra string) bool {
-	if err != nil {
-		formatStr := " Err : %s\n"
-		if extra != "" {
-			formatStr = extra + formatStr
-		}
+func Echo(ws *websocket.Conn) {
 
-		fmt.Fprintf(os.Stderr, formatStr, err.Error())
-		return true
-	}
+	var err error
 
-	return false
-}
-
-func svrConnHandler(conn *websocket.Conn) {
-	request := make([]byte, 128)
-	defer conn.Close()
-	nums := 0
 	for {
-		readLen, err := conn.Read(request)
-		if checkErr(err, "Read") {
+
+		var reply string
+
+		//websocket接受信息
+
+		if err = websocket.Message.Receive(ws, &reply); err != nil {
+
+			fmt.Println("receive failed:", err)
+
 			break
+
 		}
 
-		//socket被关闭了
-		if readLen == 0 {
-			fmt.Println("Client connection close!")
-			break
-		} else {
-			//输出接收到的信息
-			fmt.Println(string(request[:readLen]))
+		fmt.Println("reveived from client: " + reply)
 
-			time.Sleep(time.Second)
-			//发送
-			nums += 1
-			conn.Write([]byte("ojbk"))
+		msg := "received:哈哈，" + reply
+
+		fmt.Println("send to client:" + msg)
+
+		//这里是发送消息
+
+		if err = websocket.Message.Send(ws, msg); err != nil {
+
+			fmt.Println("send failed:", err)
+
+			break
+
 		}
 
-		request = make([]byte, 128)
 	}
+
 }
 
-func Act(port string) string {
-	http.Handle("/echo", websocket.Handler(svrConnHandler))
-	err := http.ListenAndServe(":"+port, nil)
-	checkErr(err, "ListenAndServe")
-	fmt.Println("Func finish.")
-	return "ok"
+func ReadLog(file string) (string, error) {
+	data, err := ioutil.ReadFile(file)
+	if err != nil {
+		fmt.Println("File reading error", err)
+		return string(data), err
+	}
+	return string(data), err
+}
+
+func Logs(ws *websocket.Conn) {
+
+	var err error
+
+	for {
+
+		// var reply string
+
+		//websocket接受信息
+
+		// if err = websocket.Message.Receive(ws, &reply); err != nil {
+
+		// 	fmt.Println("receive failed:", err)
+
+		// 	break
+
+		// }
+
+		// fmt.Println("reveived from client: " + reply)
+
+		// msg := "received:哈哈，" + reply
+
+		msg, _ := ReadLog("ceshi.log")
+
+		fmt.Println("send to client:" + msg)
+
+		//这里是发送消息
+
+		if err = websocket.Message.Send(ws, msg); err != nil {
+
+			fmt.Println("send failed:", err)
+
+			break
+
+		}
+
+	}
+
+}
+
+func web(w http.ResponseWriter, r *http.Request) {
+
+	//打印请求的方法
+
+	fmt.Println("method", r.Method)
+
+	if r.Method == "GET" { //如果请求方法为get显示login.html,并相应给前端
+
+		t, err := template.ParseFiles("templates/index.html")
+		if err != nil {
+			panic("err")
+		}
+		t.Execute(w, nil)
+
+	} else {
+
+		//否则走打印输出post接受的参数username和password
+
+		fmt.Println(r.PostFormValue("username"))
+
+		fmt.Println(r.PostFormValue("password"))
+
+	}
+
+}
+
+func main() {
+
+	// 接受websocket的路由地址
+
+	http.Handle("/websocket", websocket.Handler(Echo))
+
+	http.Handle("/log", websocket.Handler(Logs))
+
+	//html页面
+
+	http.HandleFunc("/web", web)
+
+	if err := http.ListenAndServe(":1234", nil); err != nil {
+
+		log.Fatal("ListenAndServe:", err)
+
+	}
+	// msg, _ := ReadLog("ceshi.log")
+	// log.Println(msg)
+
 }
