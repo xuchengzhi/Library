@@ -32,7 +32,7 @@ func Echo(ws *websocket.Conn) {
 
 		fmt.Println("reveived from client: " + reply)
 
-		msg := "received:" + reply
+		msg := "received:哈哈，" + reply
 
 		fmt.Println("send to client:" + msg)
 
@@ -58,8 +58,10 @@ func web(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" { //如果请求方法为get显示login.html,并相应给前端
 
-		t, _ := template.ParseFiles("websocket.html")
-
+		t, err := template.ParseFiles("templates/index.html")
+		if err != nil {
+			panic("err")
+		}
 		t.Execute(w, nil)
 
 	} else {
