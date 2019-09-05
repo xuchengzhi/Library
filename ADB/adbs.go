@@ -1,7 +1,7 @@
-package main
+package ADB
 
 import (
-	// "fmt"
+	"fmt"
 	// "github.com/xuchengzhi/Library/Http"
 	"os/exec"
 	// "sync"
@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 func Logcat(app string) {
@@ -28,7 +29,30 @@ func Logcat(app string) {
 
 }
 
-func Connect() {
+func Getip() string {
+	cmd := exec.Command("./windows/adb.exe", "shell", "ifconfig wlan0")
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+	ip := ""
+	err := cmd.Run()
+	if err != nil {
+		log.Println(err.Error(), stderr.String())
+	} else {
+		if strings.Index("inet addr", out.String()) == -1 {
+			start_num := strings.Index(out.String(), "addr:") + 5
+			ip = out.String()[start_num : start_num+16]
+			log.Println(ip)
+		} else {
+			log.Println("设备未连接或未开启调试模式")
+		}
+	}
+
+	return ip
+}
+
+func Connect(ip string) {
 	cmd := exec.Command("./windows/adb.exe", "tcpip", "5555")
 	var out bytes.Buffer
 	var stderr bytes.Buffer
@@ -40,25 +64,32 @@ func Connect() {
 	} else {
 
 		if strings.Index("restarting in TCP mode port", out.String()) == -1 {
-			resp, err := http.Get("http://localhost/api/connect_ip/192.168.247.177")
+
+			url := ""
+			if len(ip) > 0 {
+				url = fmt.Sprintf("http://192.168.248.188/api/connect_ip/%v", ip)
+				log.Println(url)
+			} else {
+
+				return
+			}
+			resp, err := http.Get(url)
 			if err != nil {
 				log.Println(err)
 			}
 
 			defer resp.Body.Close()
-			body, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				// handle error
-			}
-
-			log.Println(string(body))
+			ip = strings.Replace(ip, " ", "", -1)
+			urls := "http://" + ip + ":7912/remote"
+			exec.Command("cmd", "/c", "start", urls).Start()
+			time.Sleep(1000)
 		}
 	}
 
 }
 
-func Test() {
-	cmd := exec.Command("adb", "logcat")
+func Device() {
+	cmd := exec.Command("./windows/adb.exe", "devices")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Fatal(err)
@@ -75,10 +106,12 @@ func Test() {
 	}
 }
 
-func main() {
+// func main() {
 
-	// SyncTest()
-	// Logcat("com.huawei.android.thememanager")
-	Connect()
-
-}
+// 	// SyncTest()
+// 	// Logcat("com.huawei.android.thememanager")
+// 	Device()
+// 	ip := Getip()
+// 	Connect(ip)
+// 	time.Sleep(time.Second * 5)
+// }
