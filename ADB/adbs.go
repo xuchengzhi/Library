@@ -1,4 +1,5 @@
-package ADB
+// package ADB
+package main
 
 import (
 	"fmt"
@@ -6,16 +7,64 @@ import (
 	"os/exec"
 	// "sync"
 	"bytes"
+	"flag"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"runtime"
 	"strings"
 	"time"
 )
 
+var (
+	h       bool
+	s       string
+	ip      string
+	device  bool
+	getip   bool
+	conn    bool
+	logcat  string
+	sys     string
+	adb_cmd string
+)
+
+func init() {
+	sys = runtime.GOOS
+	if sys == "windows" {
+		adb_cmd = "./windows/adb.exe"
+	} else if sys == "linux" {
+		adb_cmd = "./linux/adb"
+	} else {
+		adb_cmd = "./mac/adb"
+	}
+
+	flag.BoolVar(&h, "h", false, "查看帮助")
+	flag.BoolVar(&device, "device", false, "获取devices")
+	flag.BoolVar(&getip, "getip", false, "获取手机ip")
+	flag.BoolVar(&conn, "conn", false, "将手机通过远程连接到服务器，服务器可操作该手机")
+	flag.String("logcat", "logcat", "查看日志")
+	flag.StringVar(&s, "s", "", "测试")
+	flag.StringVar(&ip, "ip", "", "服务器IP地址")
+	// 改变默认的 Usage，flag包中的Usage 其实是一个函数类型。这里是覆盖默认函数实现，具体见后面Usage部分的分析
+	flag.Usage = usage
+
+	// log.Println(sys)
+}
+
+func Formats(f *flag.Flag) string {
+	res := ""
+	if f != nil {
+		res = fmt.Sprintf("%v", f.Value)
+	} else {
+		fmt.Println(nil)
+	}
+	return res
+}
+
 func Logcat(app string) {
 	// cmdstr := fmt.Sprintf("adb logcat | grep %v", app)
-	cmd := exec.Command("adb", "logcat")
+	cmd := exec.Command(adb_cmd, "logcat")
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
@@ -30,7 +79,8 @@ func Logcat(app string) {
 }
 
 func Getip() string {
-	cmd := exec.Command("./windows/adb.exe", "shell", "ifconfig wlan0")
+
+	cmd := exec.Command(adb_cmd, "shell", "ifconfig wlan0")
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
@@ -52,8 +102,12 @@ func Getip() string {
 	return ip
 }
 
-func Connect(ip string) {
-	cmd := exec.Command("./windows/adb.exe", "tcpip", "5555")
+func Connect() {
+
+	ip := Getip()
+
+	cmd := exec.Command(adb_cmd, "tcpip", "5555")
+
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
@@ -73,6 +127,7 @@ func Connect(ip string) {
 
 				return
 			}
+			// ConntToIP(ip)
 			resp, err := http.Get(url)
 			if err != nil {
 				log.Println(err)
@@ -88,8 +143,33 @@ func Connect(ip string) {
 
 }
 
+func ConntToIP(ip string) {
+	cmdstr := fmt.Sprintf("connect %v:5555", ip)
+	log.Println(cmdstr)
+	cmd := exec.Command(adb_cmd, cmdstr)
+
+	// deviceinfo = nil
+	// num = 0
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stdout.Close()
+	if err := cmd.Start(); err != nil {
+		log.Fatal(err)
+	}
+	opBytes, err := ioutil.ReadAll(stdout)
+	if err != nil {
+		log.Fatal(err)
+	} else {
+		log.Println(string(opBytes))
+	}
+	log.Println(ip)
+
+}
+
 func Device() {
-	cmd := exec.Command("./windows/adb.exe", "devices")
+	cmd := exec.Command(adb_cmd, "devices")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Fatal(err)
@@ -106,12 +186,33 @@ func Device() {
 	}
 }
 
-// func main() {
+func main() {
+	// 	// SyncTest()
+	// Logcat("com.huawei.android.thememanager")
+	// 	Device()
+	// 	ip := Getip()
+	// 	Connect(ip)
+	// 	time.Sleep(time.Second * 5)
+	flag.Parse()
 
-// 	// SyncTest()
-// 	// Logcat("com.huawei.android.thememanager")
-// 	Device()
-// 	ip := Getip()
-// 	Connect(ip)
-// 	time.Sleep(time.Second * 5)
-// }
+	if h {
+		flag.Usage()
+	} else if device {
+		Device()
+	} else if getip {
+		Getip()
+	} else if conn {
+		Connect()
+	}
+	// ConntToIP("192.168.247.134")
+	// msg := Formats(flag.Lookup("test"))
+	// fmt.Println(msg)
+}
+
+func usage() {
+	fmt.Fprintf(os.Stderr, `App version: Test/1.10.0
+Usage: adbs.exe [-h] [-device] [-getip] [-ip ipaddress] [-conn]
+Options:
+`)
+	flag.PrintDefaults()
+}
