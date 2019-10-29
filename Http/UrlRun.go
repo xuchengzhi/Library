@@ -8,9 +8,10 @@ import (
 	"fmt"
 	"github.com/xuchengzhi/Library/Time"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
-	// "reflect"
+	"reflect"
 	"strings"
 	"sync"
 	"time"
@@ -36,12 +37,12 @@ var is_res, is_proxy bool
 
 func init() {
 
-	timeout = time.Duration(1000 * time.Millisecond)
+	timeout = time.Duration(10 * time.Millisecond)
 	is_res = true
-	is_proxy = false
+	is_proxy = true
 }
 
-func Post(p Par, ch chan ApiJson) {
+func Post(p Par, ch chan ApiJson, is_proxy bool) {
 
 	urls := p.Url
 	// fmt.Println(urls)
@@ -62,11 +63,17 @@ func Post(p Par, ch chan ApiJson) {
 	// 	return url.Parse("http://127.0.0.1:8888")
 	// }
 	// transport := &http.Transport{}
-	proxy := func(_ *http.Request) (*url.URL, error) {
+	proxy := func(*http.Request) (*url.URL, error) {
 		return url.Parse("http://127.0.0.1:8888")
 	}
 
-	transport := &http.Transport{Proxy: proxy}
+	log.Println(reflect.TypeOf(proxy))
+
+	transport := &http.Transport{}
+	if is_proxy {
+		transport = &http.Transport{Proxy: proxy}
+	}
+
 	client := &http.Client{
 		// Timeout:   timeout,
 		Transport: transport,
@@ -99,7 +106,7 @@ func Post(p Par, ch chan ApiJson) {
 	}
 }
 
-func Get(p Par, ch chan ApiJson) {
+func Get(p Par, ch chan ApiJson, is_proxy bool) {
 
 	urls := p.Url
 	// fmt.Println(urls)
@@ -114,10 +121,13 @@ func Get(p Par, ch chan ApiJson) {
 		q.Add(key, string(val))
 	}
 	req.URL.RawQuery = q.Encode()
-	// proxy := func(_ *http.Request) (*url.URL, error) {
-	// 	return url.Parse("http://127.0.0.1:8888")
-	// }
+	proxy := func(_ *http.Request) (*url.URL, error) {
+		return url.Parse("http://127.0.0.1:8888")
+	}
 	transport := &http.Transport{}
+	if is_proxy {
+		transport = &http.Transport{Proxy: proxy}
+	}
 
 	client := &http.Client{
 		// Timeout:   timeout,
@@ -159,9 +169,9 @@ func Action(urls, method string, p map[string]string, Run_sync *sync.WaitGroup) 
 	outputs := make(chan ApiJson)
 	var status ApiJson
 	if strings.EqualFold(method, "post") {
-		go Post(pars, outputs)
+		go Post(pars, outputs, is_proxy)
 	} else {
-		go Get(pars, outputs)
+		go Get(pars, outputs, is_proxy)
 	}
 	defer Run_sync.Done()
 	status = <-outputs
