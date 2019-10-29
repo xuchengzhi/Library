@@ -1,5 +1,4 @@
-// package CloudFont
-
+package CloudFont
 
 import (
 	"fmt"
