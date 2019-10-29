@@ -18,8 +18,8 @@ import (
 
 //定义结构体http请求url和参数
 type Par struct {
-	url    string
-	params map[string]string
+	Url    string
+	Params map[string]string
 }
 
 type ApiJson struct {
@@ -41,11 +41,11 @@ func init() {
 	is_proxy = false
 }
 
-func Post(p *Par, ch chan ApiJson) {
+func Post(p Par, ch chan ApiJson) {
 
-	urls := p.url
+	urls := p.Url
 	// fmt.Println(urls)
-	par := p.params
+	par := p.Params
 	var clusterinfo = url.Values{}
 	for key, val := range par {
 		clusterinfo.Add(key, string(val))
@@ -99,11 +99,11 @@ func Post(p *Par, ch chan ApiJson) {
 	}
 }
 
-func Get(p *Par, ch chan ApiJson) {
+func Get(p Par, ch chan ApiJson) {
 
-	urls := p.url
+	urls := p.Url
 	// fmt.Println(urls)
-	par := p.params
+	par := p.Params
 	req, _ := http.NewRequest("GET", urls, nil)
 	ctx, _ := context.WithTimeout(context.Background(), timeout) //设置超时时间
 	req = req.WithContext(ctx)
@@ -152,8 +152,10 @@ func Get(p *Par, ch chan ApiJson) {
 }
 
 func Action(urls, method string, p map[string]string, Run_sync *sync.WaitGroup) string {
-
-	pars := &Par{urls, p}
+	var pars Par
+	// pars := &Par{urls, p}
+	pars.Url = urls
+	pars.Params = p
 	outputs := make(chan ApiJson)
 	var status ApiJson
 	if strings.EqualFold(method, "post") {
