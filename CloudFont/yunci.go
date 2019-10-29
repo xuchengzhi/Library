@@ -1,5 +1,6 @@
-// package CloudFont
-package main
+package CloudFont
+
+// package main
 
 import (
 	"flag"
