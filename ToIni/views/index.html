@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <!-- import CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+  <div id="app">
+    <el-container>
+    <el-header>
+    <p>HTML转ini工具</p>
+  </el-header>
+    <el-main style="height:50%">
+      <a class='download' :href='downfile' download=""  title="下载" v-show="show" style="margin-top: 10px">下载INI</a>
+      <el-upload
+        class="upload-demo"
+        drag
+        :before-upload="beforeAvatarUpload"
+        action="http://127.0.0.1/fileup"
+        name="index"
+        :on-change="response"
+        multiple style="margin-top: 50px;margin-bottom: 300px">
+      <i class="el-icon-upload"></i>
+      <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+      <div class="el-upload__tip" slot="tip">只能上传HTML文件</div>
+      
+      </el-upload>
+      
+
+    </el-main>
+  </el-container>
+
+  </div>
+
+</body>
+  <!-- import Vue before Element -->
+  <script src="../static/vue.min.js"></script>
+  <!-- import JavaScript -->
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      data: function() {
+        return {
+          visible: false,
+          input: '',
+          msg: "",
+          downfile: "",
+          show: false,
+         }
+      },
+      methods: {
+      handleRemove(file, fileList) {
+        console.log(file, fileList);
+      },
+      handlePreview(file) {
+        console.log(file);
+      },
+      response(file){
+        this.downfile = file.response
+        if (this.downfile == "") {
+          this.show = false
+        }
+          else{
+            this.show = true
+          }
+        
+      },
+      handleExceed(files, fileList) {
+        this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+      },
+      beforeRemove(file, fileList) {
+        return this.$confirm(`确定移除 ${ file.name }？`);
+      },
+      beforeAvatarUpload(file) {
+        const isHTML = file.type === 'text/html';
+	console.log(file.type);
+        if (!isHTML) {
+          this.$message.error('只能转换HTML文件!');
+        }
+        
+        return isHTML;
+      }
+    
+    }
+    })
+  </script>
+<style>
+  .el-header, .el-footer {
+    background-color: #B3C0D1;
+    text-align: center;
+  }
+  .el-main {
+    background-color: #E9EEF3;
+    text-align: center;
+  }
+</style>
+
+</html>
