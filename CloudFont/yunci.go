@@ -1,4 +1,5 @@
-package CloudFont
+// package CloudFont
+package main
 
 import (
 	"flag"
@@ -47,7 +48,7 @@ func RenderNow(TTF, b_png, string, textList []string) {
 	// log.Println(colors)
 	render := wordcloud_go.NewWordCloudRender(60, 8,
 		TTF,
-		b, textList, angles, colors, fmt.Sprintf("new_%v",b_png)
+		b, textList, angles, colors, fmt.Sprintf("new_%v", b_png))
 	render.Render()
 }
 
