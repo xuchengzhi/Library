@@ -1,22 +1,13 @@
-package CloudFont
+// package CloudFont
 
-// package main
 
 import (
-	"flag"
 	"fmt"
-	// "github.com/therecipe/qt/core"
-	// "github.com/therecipe/qt/widgets"
 	// "github.com/xuchengzhi/Library/Transfar"
 	gojieba "github.com/xuchengzhi/gojieba"
 	"github.com/xuchengzhi/wordcloud"
 	"image/color"
-	// "log"
-	"os"
-	// "reflect"
 	"regexp"
-	// "strings"
-	"time"
 )
 
 var (
@@ -28,16 +19,7 @@ var (
 	h      bool
 )
 
-func init() {
-	flag.BoolVar(&h, "h", false, "帮助")
-	flag.BoolVar(&render, "render", false, "生成云词图")
-	flag.StringVar(&TTF, "TTF", "", "TTF路径")
-	flag.StringVar(&msg, "msg", "", "要生成的内容")
-	flag.StringVar(&b, "b", "", "背景图路径")
-	flag.Usage = usage
-}
-
-func RenderNow(TTF, b_png, string, textList []string) {
+func RenderNow(textList []string, TTF, b_png string) {
 	//TTF, b_png string, textList []string
 	//生成云词图片
 	angles := []int{0, 15, -15, 90}
@@ -49,7 +31,7 @@ func RenderNow(TTF, b_png, string, textList []string) {
 	// log.Println(colors)
 	render := wordcloud_go.NewWordCloudRender(60, 8,
 		TTF,
-		b, textList, angles, colors, fmt.Sprintf("new_%v", b_png))
+		b_png, textList, angles, colors, fmt.Sprintf("new_%v", b_png))
 	render.Render()
 }
 
