@@ -203,6 +203,8 @@ func main() {
 		Getip()
 	} else if conn {
 		Connect()
+	} else {
+		flag.Usage()
 	}
 	// ConntToIP("192.168.247.134")
 	// msg := Formats(flag.Lookup("test"))
