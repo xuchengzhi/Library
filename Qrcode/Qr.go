@@ -3,6 +3,7 @@ package Qr
 // package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/boombuler/barcode"
 	"github.com/boombuler/barcode/qr"
@@ -30,10 +31,10 @@ func writePng(filename string, img image.Image) {
 	log.Println(file.Name())
 }
 
-func Builds(str, fname, bcolors, colors string, x, y int) {
+func Builds(str, fname, bcolors, colors string, x, y int) error {
 	/*
-		func :生成二维码封装
-		params: str 二维码内容，fnama 二维码名称，bcolors 二维码背景颜色 ，color 二维码前景色 x,y 宽高
+	   func :生成二维码封装
+	   params: str 二维码内容，fnama 二维码名称，bcolors 二维码背景颜色 ，color 二维码前景色 x,y 宽高
 
 	*/
 	base64 := str
@@ -41,23 +42,32 @@ func Builds(str, fname, bcolors, colors string, x, y int) {
 	code, err := qr.Encode(base64, qr.L, qr.Auto)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return err
 	}
 	// log.Println("Encoded data: ", code.Content())
 
 	if base64 != code.Content() {
 		log.Fatal("data differs")
+
+		return errors.New("data differs")
 	}
 
 	code, err = barcode.Scale(code, x, y)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return err
 	}
 	var tmpname = "tmp.png"
 	writePng(tmpname, code)
 	log.Println("二维码已生成")
-	Changecolor(tmpname, colors, bcolors, fname+".png")
+	errs := Changecolor(tmpname, colors, bcolors, fname+".png")
+	if errs != nil {
+		return errs
+	}
 	log.Println("二维码颜色已处理")
+	return nil
+
 }
 
 func Scants(file string) {
@@ -76,18 +86,20 @@ func Scants(file string) {
 	fmt.Println(qrmatrix.Content)
 }
 
-func Changecolor(tmpname, colors, bcolors, fname string) {
+func Changecolor(tmpname, colors, bcolors, fname string) error {
 	//参考https://www.cnblogs.com/muamaker/p/10767942.html
 	imgfile, err := os.Open(tmpname)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return err
 	}
 	defer imgfile.Close()
 
 	img, err := png.Decode(imgfile)
 	if err != nil {
 		fmt.Println(err.Error())
+		return err
 	}
 
 	bounds := img.Bounds()
@@ -119,14 +131,19 @@ func Changecolor(tmpname, colors, bcolors, fname string) {
 	}
 	tmp, _ := os.Create(fname)
 	png.Encode(tmp, cimg)
+	tmp.Close()
+	return nil
 }
 
 // func main() {
-// 	x, y := 500, 500
+// 	x, y := 150, 150
 // 	name := "ceshi"
-// 	str := "http://www.baidu.com"
+// 	str := "https://itunes.apple.com/cn/app/id1473104002"
 // 	bolors := "FF1493"
 // 	colors := "000000"
-// 	Builds(str, name, colors, bolors, x, y)
-// 	Scants(name + ".png")
+// 	res := Builds(str, name, colors, bolors, x, y)
+// 	if res != nil {
+// 		log.Println(res)
+// 	}
+// 	// Scants(name + ".png")
 // }
