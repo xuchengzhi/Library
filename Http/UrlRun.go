@@ -8,9 +8,10 @@ import (
 	"fmt"
 	"github.com/xuchengzhi/Library/Time"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
-	// "reflect"
+	"reflect"
 	"strings"
 	"sync"
 	"time"
@@ -18,8 +19,8 @@ import (
 
 //定义结构体http请求url和参数
 type Par struct {
-	url    string
-	params map[string]string
+	Url    string
+	Params map[string]string
 }
 
 type ApiJson struct {
@@ -36,16 +37,16 @@ var is_res, is_proxy bool
 
 func init() {
 
-	timeout = time.Duration(1000 * time.Millisecond)
+	timeout = time.Duration(10 * time.Millisecond)
 	is_res = true
 	is_proxy = false
 }
 
-func Post(p *Par, ch chan ApiJson) {
+func Post(p Par, ch chan ApiJson, is_proxy bool) {
 
-	urls := p.url
+	urls := p.Url
 	// fmt.Println(urls)
-	par := p.params
+	par := p.Params
 	var clusterinfo = url.Values{}
 	for key, val := range par {
 		clusterinfo.Add(key, string(val))
@@ -62,11 +63,17 @@ func Post(p *Par, ch chan ApiJson) {
 	// 	return url.Parse("http://127.0.0.1:8888")
 	// }
 	// transport := &http.Transport{}
-	proxy := func(_ *http.Request) (*url.URL, error) {
+	proxy := func(*http.Request) (*url.URL, error) {
 		return url.Parse("http://127.0.0.1:8888")
 	}
 
-	transport := &http.Transport{Proxy: proxy}
+	log.Println(reflect.TypeOf(proxy))
+
+	transport := &http.Transport{}
+	if is_proxy {
+		transport = &http.Transport{Proxy: proxy}
+	}
+
 	client := &http.Client{
 		// Timeout:   timeout,
 		Transport: transport,
@@ -99,11 +106,11 @@ func Post(p *Par, ch chan ApiJson) {
 	}
 }
 
-func Get(p *Par, ch chan ApiJson) {
+func Get(p Par, ch chan ApiJson, is_proxy bool) {
 
-	urls := p.url
+	urls := p.Url
 	// fmt.Println(urls)
-	par := p.params
+	par := p.Params
 	req, _ := http.NewRequest("GET", urls, nil)
 	ctx, _ := context.WithTimeout(context.Background(), timeout) //设置超时时间
 	req = req.WithContext(ctx)
@@ -114,10 +121,13 @@ func Get(p *Par, ch chan ApiJson) {
 		q.Add(key, string(val))
 	}
 	req.URL.RawQuery = q.Encode()
-	// proxy := func(_ *http.Request) (*url.URL, error) {
-	// 	return url.Parse("http://127.0.0.1:8888")
-	// }
+	proxy := func(_ *http.Request) (*url.URL, error) {
+		return url.Parse("http://127.0.0.1:8888")
+	}
 	transport := &http.Transport{}
+	if is_proxy {
+		transport = &http.Transport{Proxy: proxy}
+	}
 
 	client := &http.Client{
 		// Timeout:   timeout,
@@ -151,15 +161,17 @@ func Get(p *Par, ch chan ApiJson) {
 	}
 }
 
-func Action(urls, method string, p map[string]string, Run_sync *sync.WaitGroup) string {
-
-	pars := &Par{urls, p}
+func Action(urls, method string, p map[string]string, Run_sync *sync.WaitGroup, is_proxy bool) string {
+	var pars Par
+	// pars := &Par{urls, p}
+	pars.Url = urls
+	pars.Params = p
 	outputs := make(chan ApiJson)
 	var status ApiJson
 	if strings.EqualFold(method, "post") {
-		go Post(pars, outputs)
+		go Post(pars, outputs, is_proxy)
 	} else {
-		go Get(pars, outputs)
+		go Get(pars, outputs, is_proxy)
 	}
 	defer Run_sync.Done()
 	status = <-outputs
@@ -175,7 +187,7 @@ type ResJson struct {
 	Info string `json:"info"`
 }
 
-func PressureRun(num int, url, method string, params map[string]string) {
+func PressureRun(num int, url, method string, params map[string]string, is_proxy bool) {
 	errors := 0
 	var res string
 	time1 := time.Now()
@@ -183,7 +195,7 @@ func PressureRun(num int, url, method string, params map[string]string) {
 	for i := 0; i < num; i++ {
 		Run_sync.Add(1)
 		go func() {
-			tmp := Action(url, method, params, &Run_sync)
+			tmp := Action(url, method, params, &Run_sync, is_proxy)
 			var res ResJson
 			// fmt.Println(reflect.TypeOf(tmp))
 			if err := json.Unmarshal([]byte(tmp), &res); err == nil {

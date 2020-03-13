@@ -1,24 +1,16 @@
 package CloudFont
 
 import (
-	"fmt"
+	// "fmt"
 	// "github.com/xuchengzhi/Library/Transfar"
-	gojieba "github.com/xuchengzhi/gojieba"
+	"github.com/xuchengzhi/apimonitor/gojieba"
 	"github.com/xuchengzhi/wordcloud"
 	"image/color"
+	"log"
 	"regexp"
 )
 
-var (
-	TTF    string
-	b      string
-	msg    string
-	bcolor string
-	render bool
-	h      bool
-)
-
-func RenderNow(textList []string, TTF, b_png string) {
+func RenderNow(TTF, b_png, new_png string, textList []string) {
 	//TTF, b_png string, textList []string
 	//生成云词图片
 	angles := []int{0, 15, -15, 90}
@@ -28,7 +20,7 @@ func RenderNow(textList []string, TTF, b_png string) {
 		// &color.RGBA{0x73, 0x73, 0x0, 0xff},
 	}
 	// log.Println(colors)
-	new_png := fmt.Sprintf("new_%v", b_png)
+	log.Println("图片保存到", new_png)
 	render := wordcloud_go.NewWordCloudRender(60, 8,
 		TTF,
 		b_png, textList, angles, colors, new_png)
