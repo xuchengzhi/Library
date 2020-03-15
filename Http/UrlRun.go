@@ -39,7 +39,7 @@ func init() {
 
 	timeout = time.Duration(10 * time.Millisecond)
 	is_res = true
-	is_proxy = false
+	is_proxy = true
 }
 
 func Post(p Par, ch chan ApiJson, is_proxy bool) {
@@ -161,7 +161,11 @@ func Get(p Par, ch chan ApiJson, is_proxy bool) {
 	}
 }
 
+<<<<<<< HEAD
 func Action(urls, method string, p map[string]string, Run_sync *sync.WaitGroup, is_proxy bool) string {
+=======
+func Action(urls, method string, p map[string]string, Run_sync *sync.WaitGroup) string {
+>>>>>>> 9dea90b4dbeda19ddda399d4d23ebaf3e02a3733
 	var pars Par
 	// pars := &Par{urls, p}
 	pars.Url = urls
