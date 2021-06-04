@@ -1,4 +1,5 @@
 **这是我的公共库**
+- 解析apk fork github.com/shogo82148/androidbinary/apk
 
 - XorEnc 异或加解密使用方法：
 

@@ -1,11 +1,12 @@
 package ZIP
 
 import (
+	"archive/tar"
 	"archive/zip"
-	// "fmt"
+	"compress/gzip"
+	"fmt"
 	"io"
 	"os"
-	// "path"
 	"path/filepath"
 	"strings"
 )
@@ -91,5 +92,53 @@ func Unzip(zipFile string, destDir string) error {
 			}
 		}
 	}
+	fmt.Println("解压完成")
 	return nil
+}
+
+func Untargz(zipfile, upath string) {
+	fr, err := os.Open(zipfile)
+	if err != nil {
+		panic(err)
+	}
+	defer fr.Close()
+	// gzip read
+	gr, err := gzip.NewReader(fr)
+	if err != nil {
+		panic(err)
+	}
+	defer gr.Close()
+	// tar read
+	tr := tar.NewReader(gr)
+	// 读取文件
+	for {
+		h, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			panic(err)
+		}
+		// 显示文件
+		fmt.Println(h.Name)
+		// 打开文件
+		file_path, err := filepath.Abs(fmt.Sprintf("%v/", upath) + filepath.Dir(h.Name))
+		if err != nil {
+			fmt.Println(err)
+		}
+		os.MkdirAll(file_path, os.ModePerm)
+		fmt.Println(file_path)
+		//
+		fw, err := os.OpenFile(fmt.Sprintf("%v/", upath)+h.Name, os.O_CREATE|os.O_WRONLY, 0644 /*os.FileMode(h.Mode)*/)
+		if err != nil {
+			panic(err)
+		}
+		defer fw.Close()
+		// 写文件
+		_, err = io.Copy(fw, tr)
+		if err != nil {
+			panic(err)
+		}
+	}
+	fmt.Println("解压完成")
 }

@@ -23,7 +23,7 @@ type Par struct {
         par := make(map[string]string)
         par["p"] = "ceshi"
         var pars UrlRun.Par
-        pars.Url = "http://hwdev.xiezixiansheng.com/mobile/cdfdf"
+        pars.Url = "http://xx.xx.com/mobile/cdfdf"
         pars.Params = par
         log.Println(pars)
         res := make(chan UrlRun.ApiJson)
@@ -55,7 +55,7 @@ type Par struct {
         par := make(map[string]string)
         par["p"] = "ceshi"
         var pars UrlRun.Par
-        pars.Url = "http://hwdev.xiezixiansheng.com/mobile/cdfdf"
+        pars.Url = "http://xxx.xx.com/mobile/cdfdf"
         pars.Params = par
         log.Println(pars)
         res := make(chan UrlRun.ApiJson)
@@ -68,3 +68,22 @@ type Par struct {
 
 参数： PressureRun(num int, url, method string, params map[string]string,is_proxy bool)
         num 请求数 url 接口地址 method 请求方式 params 请求参数
+
+```bash
+package main
+
+import (
+    "github.com/xuchengzhi/Library/Http"
+)
+
+func main() {
+    UrlRun.ProxyUrl = "http://192.168.248.150:8001"
+    IsProxy := true
+    UrlRun.IsJson = true
+    UrlRun.Read_Res = true
+    params := make(map[string]interface{})
+    params["msg"] = "123456"
+    params["age"] = "ten"
+    UrlRun.PressureRun(20, "https://www.xxx.com.cn/v1/tools/MD5", "post", params, IsProxy)
+}
+```

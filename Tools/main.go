@@ -2,7 +2,11 @@ package Tools
 
 import (
 	// "fmt"
+	"bytes"
+	"encoding/json"
+	"log"
 	"net"
+	"os"
 	"runtime"
 )
 
@@ -47,4 +51,14 @@ func GetIPv4ByInterface(name string) ([]string, error) {
 	}
 
 	return ips, nil
+}
+
+func Printj(msg []byte) {
+	var out bytes.Buffer
+	err := json.Indent(&out, msg, "", "	")
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+	out.WriteTo(os.Stdout)
 }
